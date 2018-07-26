@@ -51,6 +51,7 @@ with detection_graph.as_default():
 # Load label map
 label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
+print(categories)
 category_index = label_map_util.create_category_index(categories)
 
 def load_image_into_numpy_array(image):
@@ -105,19 +106,36 @@ with graph.as_default():
               output_dict['detection_classes'], output_dict['detection_scores'],
               category_index, instance_masks=output_dict.get('detection_masks'),
               use_normalized_coordinates=True, line_thickness=8)
-            print(output_dict['detection_boxes'])
-            cv2.rectangle(image, (180, 110), (300, 250), (0, 255, 0), 2)
+            # cv2.rectangle(image, (180, 110), (300, 250), (0, 255, 0), 2)
             cv2.imshow('Object Detection', cv2.resize(image, (800, 600)))
-            
-            # add ball tracking code
             
             
             if(cv2.waitKey(25) & 0xFF == ord('q')):
                 cv2.destroyAllWindows()
                 break
             
+            # analysis of intersection is triggered by space bar
             if cv2.waitKey(0) & 0xFF == ord(' '): 
                 # cv2.imwrite("test_case_" + str(i) + ".jpg", image)
                 
+                e = 0
+                boxes = [[], []]
+                for box in output_dict['detection_boxes']:
+                    if sum(box) / len(box) != 0.0:
+                        if output_dict['detection_scores'][e] >= 0.5:
+                            print(box)
+                            print(output_dict['detection_scores'][e])
+                            
+                            # Self Driving Car is detected
+                            if output_dict['detection_classes'][e] == 1:
+                                boxes[0].append(box.tolist()) # index 0 for Self Driving Car
+                            # Human Driven Car is detected
+                            elif output_dict['detection_classes'][e] == 2:
+                                boxes[1].append(box.tolist()) # index 1 for Human Driven Car
+                            
+                            e += 1
+                            
+                print(boxes)
+                        
                 print("Frame saved as test_case" + str(i))
                 i += 1
