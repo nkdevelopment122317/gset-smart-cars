@@ -11,12 +11,15 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 from time import sleep
+from pprint import pprint
 
 import cv2
 
+def assignRandomIndices(boxes):
+    print()
+    
 # cap = cv2.VideoCapture("//Users//bidushi//Downloads//gset-rfcn-export-data//training_video_smart_car.mp4")
 cap = cv2.VideoCapture(1)
-
 
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("//Users//bidushi//Downloads//gset-rfcn-export-data//models//research")
@@ -128,14 +131,19 @@ with graph.as_default():
                             
                             # Self Driving Car is detected
                             if output_dict['detection_classes'][e] == 1:
-                                boxes[0].append(box.tolist()) # index 0 for Self Driving Car
+                                boxes[0].append((box.tolist(), 0)) # index 0 for Self Driving Car
                             # Human Driven Car is detected
                             elif output_dict['detection_classes'][e] == 2:
-                                boxes[1].append(box.tolist()) # index 1 for Human Driven Car
+                                boxes[1].append((box.tolist(), 0)) # index 1 for Human Driven Car
                             
                             e += 1
-                            
-                print(boxes)
+                
+                pprint(boxes)
+                
+                # gives a random index for each bounding box in the boxes list.
+                # indices are from 1 to the number of boxes.
+                # lower indices indicates a car that arrived at the intersection sooner.
+                assignRandomIndices(boxes)
                         
                 print("Frame saved as test_case" + str(i))
                 i += 1
